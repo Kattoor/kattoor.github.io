@@ -11,7 +11,7 @@
     getPrice('stellar', console.log);
 
     function getPrice(coin, callback) {
-        fetch('http://95.85.19.37:8080/' + coin).then(response => response.text().then(usd => callback(usd)));
+        fetch('https://95.85.19.37:8080/' + coin).then(response => response.text().then(usd => callback(usd)));
     }
 </script>
 </body>
