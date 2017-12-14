@@ -6,7 +6,13 @@
 </head>
 <body>
 <script>
-    fetch('https://coinmarketcap.com/currencies/ripple/#markets', {mode: 'cors'}).then(response => console.log(response)).then(blob => console.log(blob));
+    getPrice('xtrabytes', console.log);
+    getPrice('ripple', console.log);
+    getPrice('stellar', console.log);
+
+    function getPrice(coin, callback) {
+        fetch('http://95.85.19.37:8080/' + coin).then(response => response.text().then(usd => callback(usd)));
+    }
 </script>
 </body>
 </html>
