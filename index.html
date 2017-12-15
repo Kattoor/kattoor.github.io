@@ -44,26 +44,48 @@
     };
 
     function getCoinInfo(coinNames) {
-        coinNames.forEach(coinName =>
-            getPrice(coinName, (coinName, usd) => {
+        coinNames.forEach(function (coinName) {
+            getPrice(coinName, function (coinName, usd) {
                 const currentWorth = usd * amounts[coinName];
-                const totalCost = transactions[coinName].reduce((cumSum, transaction) => cumSum + transaction.amount * transaction.price, 0);
+                const totalCost = transactions[coinName].reduce(function (cumSum, transaction) {
+                    return cumSum + transaction.amount * transaction.price;
+                }, 0);
                 const profit = currentWorth - totalCost;
                 const p = document.createElement('p');
-                p.innerHTML = `
+                p.innerHTML = '1 <span>' + coinName + '</span> = ' + usd + ' USD<br>' + amounts[coinName] + ' <span>' + coinName + '</span> = <span class="profit">' + currentWorth + ' USD</span><br>Spent <span class="expense">' + totalCost + ' USD</span> buying <span>' + coinName + '</span><br>Profit = <span class="' + (profit > 0 ? 'profit' : 'expense') + '">' + profit + ' USD<span><br>';
+                /*`
                                 1 <span>${coinName}</span> = ${usd} USD<br>
                                 ${amounts[coinName]} <span>${coinName}</span> = <span class="profit">${currentWorth} USD</span><br>
                                 Spent <span class="expense">${totalCost} USD</span> buying <span>${coinName}</span><br>
                                 Profit = <span class="${profit > 0 ? 'profit' : 'expense'}">${profit} USD<span><br>
-                `;
+                `;*/
                 container.appendChild(p);
-            }));
+            })
+        });
     }
 
     getCoinInfo(['ripple', 'xtrabytes', 'stellar']);
 
     function getPrice(coinName, callback) {
-        fetch('https://95.85.19.37:8080/' + coinName).then(response => response.text().then(usd => callback(coinName, usd)));
+        httpGetAsync('https://95.85.19.37:8080/' + coinName, function(response) {
+            callback(coinName, response);
+        });
+        /*fetch('https://95.85.19.37:8080/' + coinName).then(function (response) {
+            response.text().then(function (usd) {
+                callback(coinName, usd);
+            })
+        });*/
+    }
+
+    function httpGetAsync(url, callback)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState === 4 && xmlHttp.status == 200)
+                callback(xmlHttp.responseText);
+        };
+        xmlHttp.open("GET", url, true);
+        xmlHttp.send(null);
     }
 </script>
 </body>
