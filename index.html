@@ -2,16 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Kattoor</title>
 </head>
 <body>
+<div id="container"></div>
 <script>
-    getPrice('xtrabytes', console.log);
-    getPrice('ripple', console.log);
-    getPrice('stellar', console.log);
+    const container = document.getElementById('container');
 
-    function getPrice(coin, callback) {
-        fetch('https://95.85.19.37:8080/' + coin).then(response => response.text().then(usd => callback(usd)));
+    const rippleTransactions = [
+        {amount: 100, price: 0.2460},
+        {amount: 200, price: 0.24445},
+        {amount: 255, price: 0.263176471},
+        {amount: 145, price: 0.298206897}
+    ];
+
+    const amountOfRipple = 700;
+
+    /*
+    * 100 - 24.60   0.2460
+    * 200 - 48.89   0.24445
+    * 255 - 67.11   0.263176471
+    * 145 - 43.24   0.298206897
+    * */
+
+
+    function addToPage(coinName, usd) {
+        const p = document.createElement('p');
+        p.innerHTML = coinName + ': ' + usd;
+        container.appendChild(p);
+    }
+
+//    getPrice('xtrabytes', addToPage);
+//    getPrice('stellar', addToPage);
+
+    getPrice('ripple', (coinName, usd) => {
+        const currentWorth = usd * amountOfRipple;
+        const totalCost = rippleTransactions.reduce((cumSum, transaction) => cumSum + transaction.amount * transaction.price, 0);
+        const p = document.createElement('p');
+        p.innerHTML = '1 ripple = ' + usd + ' USD<br>' + amountOfRipple + ' ripples = ' + currentWorth + ' USD<br>Spent ' + totalCost + ' USD buying ripple coins<br>Profit = ' + (currentWorth - totalCost) + ' USD';
+        container.appendChild(p);
+    });
+
+    function getPrice(coinName, callback) {
+        fetch('https://95.85.19.37:8080/' + coinName).then(response => response.text().then(usd => callback(coinName, usd)));
     }
 </script>
 </body>
