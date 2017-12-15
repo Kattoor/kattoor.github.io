@@ -3,45 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>Kattoor</title>
+    <style>
+        * {
+            font-family: Calibri, monospace;
+        }
+
+        span {
+            font-weight: 800;
+        }
+
+        .expense {
+            color: red;
+        }
+
+        .profit {
+            color: green;
+        }
+    </style>
 </head>
 <body>
 <div id="container"></div>
 <script>
     const container = document.getElementById('container');
 
-    const rippleTransactions = [
-        {amount: 100, price: 0.2460},
-        {amount: 200, price: 0.24445},
-        {amount: 255, price: 0.263176471},
-        {amount: 145, price: 0.298206897}
-    ];
+    const transactions = {
+        ripple: [
+            {amount: 100, price: 0.2460},
+            {amount: 200, price: 0.24445},
+            {amount: 255, price: 0.263176471},
+            {amount: 145, price: 0.298206897}
+        ],
+        xtrabytes: [{amount: 192, price: 0.140999796}],
+        stellar: [{amount: 1147.0325355, price: 0.18138898641}]
+    };
 
-    const amountOfRipple = 700;
+    const amounts = {
+        ripple: 700,
+        xtrabytes: 192,
+        stellar: 1147.0325355
+    };
 
-    /*
-    * 100 - 24.60   0.2460
-    * 200 - 48.89   0.24445
-    * 255 - 67.11   0.263176471
-    * 145 - 43.24   0.298206897
-    * */
-
-
-    function addToPage(coinName, usd) {
-        const p = document.createElement('p');
-        p.innerHTML = coinName + ': ' + usd;
-        container.appendChild(p);
+    function getCoinInfo(coinNames) {
+        coinNames.forEach(coinName =>
+            getPrice(coinName, (coinName, usd) => {
+                const currentWorth = usd * amounts[coinName];
+                const totalCost = transactions[coinName].reduce((cumSum, transaction) => cumSum + transaction.amount * transaction.price, 0);
+                const profit = currentWorth - totalCost;
+                const p = document.createElement('p');
+                p.innerHTML = `
+                                1 <span>${coinName}</span> = ${usd} USD<br>
+                                ${amounts[coinName]} <span>${coinName}</span> = <span class="profit">${currentWorth} USD</span><br>
+                                Spent <span class="expense">${totalCost} USD</span> buying <span>${coinName}</span><br>
+                                Profit = <span class="${profit > 0 ? 'profit' : 'expense'}">${profit} USD<span><br>
+                `;
+                container.appendChild(p);
+            }));
     }
 
-//    getPrice('xtrabytes', addToPage);
-//    getPrice('stellar', addToPage);
-
-    getPrice('ripple', (coinName, usd) => {
-        const currentWorth = usd * amountOfRipple;
-        const totalCost = rippleTransactions.reduce((cumSum, transaction) => cumSum + transaction.amount * transaction.price, 0);
-        const p = document.createElement('p');
-        p.innerHTML = '1 ripple = ' + usd + ' USD<br>' + amountOfRipple + ' ripples = ' + currentWorth + ' USD<br>Spent ' + totalCost + ' USD buying ripple coins<br>Profit = ' + (currentWorth - totalCost) + ' USD';
-        container.appendChild(p);
-    });
+    getCoinInfo(['ripple', 'xtrabytes', 'stellar']);
 
     function getPrice(coinName, callback) {
         fetch('https://95.85.19.37:8080/' + coinName).then(response => response.text().then(usd => callback(coinName, usd)));
